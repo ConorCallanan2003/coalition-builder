@@ -605,10 +605,10 @@ export default function App() {
       .append("g")
       .call(
         parliamentChart()
-          .width(window.innerWidth < 800 ? 400 : 900)
+          .width(window.innerWidth < 800 ? 350 : 900)
           .aggregatedData(chartData)
           .sections(1)
-          .seatRadius(window.innerWidth < 800 ? 6 : 15)
+          .seatRadius(window.innerWidth < 800 ? 5 : 15)
           .rowHeight(window.innerWidth < 800 ? 18 : 40)
       );
   }, [chartData]);
@@ -656,9 +656,9 @@ export default function App() {
   console.log(window.screen.width);
 
   return (
-    <div className="w-screen h-screen relative flex flex-col justify-center items-center">
+    <div className="w-screen h-screen relative flex flex-col justify-center items-center md:pb-0 pb-[80px]">
       <svg
-        className="h-[500px] pt-[80px] md:pt-0 w-[400px] md:w-[900px]"
+        className="h-[500px] pt-[80px] md:pt-0 w-[350px] md:w-[900px]"
         id="pchart"
       ></svg>
       <div className="md:flex grid grid-cols-2 w-4/5 justify-center gap-4 z-10">
@@ -675,7 +675,7 @@ export default function App() {
                   return [...prev, party.partyName];
                 })
               }
-              className={`px-4 flex items-center justify-center select-none cursor-pointer py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} hover:opacity-90`}
+              className={`px-4 flex items-center justify-center select-none cursor-pointer py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} md:hover:opacity-90`}
               style={{ backgroundColor: party.color }}
             >
               {party.partyName}
@@ -683,7 +683,7 @@ export default function App() {
           );
         })}
       </div>
-      <div className="absolute bg-transparent w-full h-full top-0 bottom-0 right-0 left-0 flex justify-center items-center">
+      <div className="absolute bg-transparent w-full h-full md:top-0 -top-[80px] bottom-0 right-0 left-0 flex justify-center items-center">
         <div className="flex flex-col items-center justify-center">
           <div className="md:text-[100px] text-[60px] leading-none font-bold text-black pt-[20px] md:pt-[250px]">
             {chartData
