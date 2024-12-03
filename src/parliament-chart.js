@@ -1,3 +1,9 @@
+/*
+
+Credit to Daniel Kao (https://github.com/dkaoster) for the original code! Had to make a few changes and only needed one fully so easier to just copy it into the repo.
+
+*/
+
 /**
  *  ___ ____    ___          _ _                    _       ___ _             _
  * |   \__ /   | _ \__ _ _ _| (_)__ _ _ __  ___ _ _| |_    / __| |_  __ _ _ _| |_
