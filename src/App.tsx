@@ -605,10 +605,11 @@ export default function App() {
       .append("g")
       .call(
         parliamentChart()
-          .width(900)
+          .width(window.innerWidth < 800 ? 400 : 900)
           .aggregatedData(chartData)
           .sections(1)
-          .seatRadius(13)
+          .seatRadius(window.innerWidth < 800 ? 6 : 15)
+          .rowHeight(window.innerWidth < 800 ? 18 : 40)
       );
   }, [chartData]);
 
@@ -652,10 +653,15 @@ export default function App() {
     setSizeSortedChartData(formattedDataCopy);
   }, [selectedParties]);
 
+  console.log(window.screen.width);
+
   return (
     <div className="w-screen h-screen relative flex flex-col justify-center items-center">
-      <svg className="h-[500px] w-[900px]" id="pchart"></svg>
-      <div className="flex gap-4 z-10">
+      <svg
+        className="h-[500px] pt-[80px] md:pt-0 w-[400px] md:w-[900px]"
+        id="pchart"
+      ></svg>
+      <div className="md:flex grid grid-cols-2 w-4/5 justify-center gap-4 z-10">
         {sizeSortedChartData.map((party) => {
           const selected = selectedParties.includes(party.partyName);
           return (
@@ -669,7 +675,7 @@ export default function App() {
                   return [...prev, party.partyName];
                 })
               }
-              className={`px-4 select-none cursor-pointer py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} hover:opacity-90`}
+              className={`px-4 flex items-center justify-center select-none cursor-pointer py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} hover:opacity-90`}
               style={{ backgroundColor: party.color }}
             >
               {party.partyName}
@@ -679,7 +685,7 @@ export default function App() {
       </div>
       <div className="absolute bg-transparent w-full h-full top-0 bottom-0 right-0 left-0 flex justify-center items-center">
         <div className="flex flex-col items-center justify-center">
-          <div className="text-[100px] font-bold text-black pt-[200px]">
+          <div className="md:text-[100px] text-[60px] leading-none font-bold text-black pt-[20px] md:pt-[250px]">
             {chartData
               .filter((party) => selectedParties.includes(party.partyName))
               .reduce((p, c) => p + c.seats, 0)}
