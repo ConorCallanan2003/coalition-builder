@@ -658,7 +658,7 @@ export default function App() {
   return (
     <div className="w-screen h-screen relative flex flex-col justify-center items-center md:pb-0 pb-[80px]">
       <svg
-        className="h-[500px] pt-[80px] md:pt-0 w-[350px] md:w-[900px]"
+        className="h-[500px] pt-[30px] md:pt-0 w-[350px] md:w-[900px]"
         id="pchart"
       ></svg>
       <div className="md:flex grid grid-cols-2 w-4/5 justify-center gap-4 z-10">
@@ -683,7 +683,7 @@ export default function App() {
           );
         })}
       </div>
-      <div className="absolute bg-transparent w-full h-full md:top-0 -top-[80px] bottom-0 right-0 left-0 flex justify-center items-center">
+      <div className="absolute bg-transparent w-full h-full md:top-0 -top-[100px] bottom-0 right-0 left-0 flex justify-center items-center">
         <div className="flex flex-col items-center justify-center">
           <div className="md:text-[100px] text-[60px] leading-none font-bold text-black pt-[20px] md:pt-[250px]">
             {chartData
