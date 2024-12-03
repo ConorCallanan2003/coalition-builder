@@ -643,7 +643,12 @@ export default function App() {
     );
     setChartData(formattedData);
     const formattedDataCopy = JSON.parse(JSON.stringify(formattedData));
-    formattedDataCopy.sort((a, b) => b.seats - a.seats);
+    formattedDataCopy.sort((a, b) => {
+      if (b.seats == a.seats) {
+        return a.partyName.localeCompare(b.partyName);
+      }
+      return b.seats - a.seats;
+    });
     setSizeSortedChartData(formattedDataCopy);
   }, [selectedParties]);
 
