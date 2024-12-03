@@ -608,8 +608,8 @@ export default function App() {
           .width(window.innerWidth < 800 ? 350 : 900)
           .aggregatedData(chartData)
           .sections(1)
-          .seatRadius(window.innerWidth < 800 ? 5 : 15)
-          .rowHeight(window.innerWidth < 800 ? 18 : 40)
+          .seatRadius(window.innerWidth < 800 ? 6 : 15)
+          .rowHeight(window.innerWidth < 800 ? 14 : 40)
       );
   }, [chartData]);
 
@@ -675,7 +675,7 @@ export default function App() {
                   return [...prev, party.partyName];
                 })
               }
-              className={`px-4 flex items-center justify-center select-none cursor-pointer py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} md:hover:opacity-90`}
+              className={`px-4 flex items-center justify-center select-none cursor-pointer md:text-lg sm:text-md text-sm py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} md:hover:opacity-90`}
               style={{ backgroundColor: party.color }}
             >
               {party.partyName}
