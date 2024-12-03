@@ -685,12 +685,12 @@ export default function App() {
       </div>
       <div className="absolute bg-transparent w-full h-full md:top-0 -top-[100px] bottom-0 right-0 left-0 flex justify-center items-center">
         <div className="flex flex-col items-center justify-center">
-          <div className="md:text-[100px] text-[60px] leading-none font-bold text-black pt-[20px] md:pt-[250px]">
+          <div className="md:text-[100px] text-5xl leading-none font-bold text-black pt-[20px] md:pt-[250px]">
             {chartData
               .filter((party) => selectedParties.includes(party.partyName))
               .reduce((p, c) => p + c.seats, 0)}
           </div>
-          <p className="text-2xl">
+          <p className="text-xl">
             {chartData
               .filter((party) => selectedParties.includes(party.partyName))
               .reduce((p, c) => p + c.seats, 0) > 88
