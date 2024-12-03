@@ -693,7 +693,7 @@ export default function App() {
           <p className="text-xl">
             {chartData
               .filter((party) => selectedParties.includes(party.partyName))
-              .reduce((p, c) => p + c.seats, 0) > 88
+              .reduce((p, c) => p + c.seats, 0) > 87
               ? "Majority reached!"
               : "Need more seats..."}
           </p>
