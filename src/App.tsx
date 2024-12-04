@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 import parliamentChart from "./parliament-chart";
+import { saveSvgAsPng } from "save-svg-as-png";
 
 const data = {
   ELECTION: {
@@ -596,6 +597,7 @@ export default function App() {
   const [sizeSortedChartData, setSizeSortedChartData] = useState<
     { seats: number; color: string; partyName: string }[]
   >([]);
+  const [numOfIndependents, setNumOfIndependents] = useState(0);
 
   const [selectedParties, setSelectedParties] = useState<string[]>([]);
 
@@ -614,22 +616,50 @@ export default function App() {
   }, [chartData]);
 
   useEffect(() => {
-    const unsortedFormattedData = data.ELECTION.SUMMARY.PARTY_GROUPS.GROUP.map(
-      (party) => {
-        console.log(
-          party.GROUP_NAME,
-          selectedParties.includes(party.GROUP_NAME)
-        );
-
-        return {
-          seats: parseInt(party.SEATS_WON),
-          color: colors[party.GROUP_NAME],
-          partyName: party.GROUP_NAME,
-          selected: selectedParties.includes(party.GROUP_NAME),
-        };
-      }
+    const numOfInds = parseInt(
+      data.ELECTION.SUMMARY.PARTY_GROUPS.GROUP.find(
+        (x) => x.GROUP_NAME === "IND"
+      )?.SEATS_WON ?? "0"
     );
-    console.log("\n\n\n");
+    const dataNoIndParty = data.ELECTION.SUMMARY.PARTY_GROUPS.GROUP.filter(
+      (x) => x.GROUP_NAME !== "IND"
+    );
+
+    for (let i = 0; i < numOfInds; i++) {
+      dataNoIndParty.push({
+        "@ID": "",
+        GROUP_NAME: "IND_" + i.toString(),
+        FIRST_PREFERENCE_VOTES: "",
+        SHARE_OF_THE_VOTE: "",
+        SHOW_ON_GRAPHIC: "",
+        SEATS_WON: "1",
+        COMPARISON_1: {
+          COMPARISON_WITH: "",
+          FIRST_PREFERENCE_VOTES: "",
+          SHARE_OF_THE_VOTE: "",
+          SHOW_ON_GRAPHIC: "",
+          CHANGE: "",
+          SEATS_WON: "",
+        },
+        COMPARISON_2: {
+          COMPARISON_WITH: null,
+          FIRST_PREFERENCE_VOTES: null,
+          SHARE_OF_THE_VOTE: null,
+          SHOW_ON_GRAPHIC: "",
+          CHANGE: null,
+          SEATS_WON: "",
+        },
+      });
+    }
+
+    const unsortedFormattedData = dataNoIndParty.map((party) => {
+      return {
+        seats: parseInt(party.SEATS_WON),
+        color: colors[party.GROUP_NAME.split("_")[0]],
+        partyName: party.GROUP_NAME,
+        selected: selectedParties.includes(party.GROUP_NAME),
+      };
+    });
 
     const unsortedSelectedParties = unsortedFormattedData.filter((party) =>
       selectedParties.includes(party.partyName)
@@ -653,35 +683,129 @@ export default function App() {
     setSizeSortedChartData(formattedDataCopy);
   }, [selectedParties]);
 
-  console.log(window.screen.width);
+  function saveSvgAsPng() {
+    const svgElement = document.getElementById("pchart");
+
+    // Create a new XMLSerializer object to serialize the SVG element.
+    const serializer = new XMLSerializer();
+
+    // Serialize the SVG element to a string.
+    const svgString = serializer.serializeToString(svgElement!);
+
+    // Create a new blob with the SVG string.
+    const svgBlob = new Blob([svgString], {
+      type: "image/svg+xml;charset=utf-8",
+    });
+
+    // Create a new canvas element to draw the SVG on.
+    const canvas = document.createElement("canvas");
+    // Set the canvas dimensions to match the SVG dimensions.
+    //@ts-ignore
+    canvas.width = svgElement.width.baseVal.value;
+    //@ts-ignore
+    canvas.height = svgElement.height.baseVal.value;
+
+    // Draw the SVG on the canvas.
+    const ctx = canvas.getContext("2d");
+    const img = new Image();
+    img.onload = function () {
+      ctx!.drawImage(img, 0, 0);
+      // Convert the canvas to a PNG blob.
+      canvas.toBlob(
+        (pngBlob) => {
+          // Create a new link to download the PNG.
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(pngBlob!);
+          link.download = "coalitionbuilder.png";
+          link.click();
+        },
+        "image/png",
+        1 // compression quality (0-1)
+      );
+    };
+    img.src = URL.createObjectURL(svgBlob);
+  }
 
   return (
     <div className="w-screen h-screen relative flex flex-col justify-center items-center md:pb-0 pb-[80px]">
+      <div className="flex sm:w-1/2 sm:pt-0 pt-4 w-full px-4 sm:px-0 justify-end z-10">
+        <button
+          onClick={() => {
+            setChartData([]);
+            setSelectedParties([]);
+            setSizeSortedChartData([]);
+            setNumOfIndependents(0);
+          }}
+          className="text-3xl font-bold"
+        >
+          RESET
+        </button>
+        {/* <button onClick={() => saveSvgAsPng()} className="text-3xl font-bold">
+          SAVE
+        </button> */}
+      </div>
       <svg
         className="h-[500px] pt-[30px] md:pt-0 w-[350px] md:w-[900px]"
         id="pchart"
-      ></svg>
+      />
       <div className="md:flex grid grid-cols-2 w-4/5 justify-center gap-4 z-10">
-        {sizeSortedChartData.map((party) => {
-          const selected = selectedParties.includes(party.partyName);
-          return (
-            <div
-              key={party.partyName}
-              onClick={() =>
-                setSelectedParties((prev) => {
-                  if (prev.includes(party.partyName)) {
-                    return prev.filter((p) => p !== party.partyName);
+        {sizeSortedChartData
+          .filter((party) => !party.partyName.includes("IND"))
+          .map((party) => {
+            const selected = selectedParties.includes(party.partyName);
+            return (
+              <div className="flex flex-col">
+                <div
+                  key={party.partyName}
+                  onClick={() =>
+                    setSelectedParties((prev) => {
+                      if (prev.includes(party.partyName)) {
+                        return prev.filter((p) => p !== party.partyName);
+                      }
+                      return [...prev, party.partyName];
+                    })
                   }
-                  return [...prev, party.partyName];
-                })
+                  className={`px-4 flex items-center justify-center select-none cursor-pointer md:text-lg sm:text-md text-sm py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} md:hover:opacity-90`}
+                  style={{ backgroundColor: party.color }}
+                >
+                  {party.partyName}
+                </div>
+              </div>
+            );
+          })}
+        <div className="flex flex-col">
+          <div
+            key={"IND"}
+            onClick={() => {
+              if (
+                numOfIndependents >=
+                parseInt(
+                  data.ELECTION.SUMMARY.PARTY_GROUPS.GROUP.find(
+                    (x) => x.GROUP_NAME === "IND"
+                  )?.SEATS_WON ?? "0"
+                )
+              ) {
+                setNumOfIndependents(0);
+                setSelectedParties(
+                  selectedParties.filter((x) => !x.includes("IND"))
+                );
+              } else {
+                setNumOfIndependents((prev) => prev + 1);
+                setSelectedParties((prev) => [
+                  ...prev,
+                  "IND_" + numOfIndependents,
+                ]);
               }
-              className={`px-4 flex items-center justify-center select-none cursor-pointer md:text-lg sm:text-md text-sm py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} md:hover:opacity-90`}
-              style={{ backgroundColor: party.color }}
-            >
-              {party.partyName}
-            </div>
-          );
-        })}
+            }}
+            className={`px-4 flex items-center justify-center select-none cursor-pointer md:text-lg sm:text-md text-sm py-2 rounded-t-lg text-white font-bold duration-200 ${numOfIndependents > 0 ? "opacity-100" : "opacity-60"} md:hover:opacity-90`}
+            style={{ backgroundColor: colors["IND"] }}
+          >
+            IND
+          </div>
+          <p className="text-center bg-white shadow-md rounded-b-lg">
+            {numOfIndependents}
+          </p>
+        </div>
       </div>
       <div className="absolute bg-transparent w-full h-full md:top-0 -top-[100px] bottom-0 right-0 left-0 flex justify-center items-center">
         <div className="flex flex-col items-center justify-center">
