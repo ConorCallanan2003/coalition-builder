@@ -762,7 +762,7 @@ export default function App() {
                       return [...prev, party.partyName];
                     })
                   }
-                  className={`px-4 flex items-center justify-center select-none cursor-pointer md:text-lg sm:text-md text-sm py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-60"} md:hover:opacity-90`}
+                  className={`px-4 flex items-center justify-center select-none cursor-pointer md:text-lg sm:text-md text-sm py-2 rounded-lg text-white font-bold duration-200 ${selected ? "opacity-100" : "opacity-30"} md:hover:opacity-90`}
                   style={{ backgroundColor: party.color }}
                 >
                   {party.partyName}
@@ -794,7 +794,7 @@ export default function App() {
                 ]);
               }
             }}
-            className={`px-4 flex items-center justify-center select-none cursor-pointer md:text-lg sm:text-md text-sm py-2 rounded-t-lg text-white font-bold duration-200 ${numOfIndependents > 0 ? "opacity-100" : "opacity-60"} md:hover:opacity-90`}
+            className={`px-4 flex items-center justify-center select-none cursor-pointer md:text-lg sm:text-md text-sm py-2 rounded-t-lg text-white font-bold duration-200 ${numOfIndependents > 0 ? "opacity-100" : "opacity-30"} md:hover:opacity-90`}
             style={{ backgroundColor: colors["IND"] }}
           >
             IND
