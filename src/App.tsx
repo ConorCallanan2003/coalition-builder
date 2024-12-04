@@ -727,7 +727,7 @@ export default function App() {
   }
 
   return (
-    <div className="w-screen h-screen relative flex flex-col justify-center items-center md:pb-0 pb-[60px]">
+    <div className="w-screen h-screen relative flex flex-col justify-center items-center md:pb-0 pb-[80px]">
       <div className="flex sm:w-1/2 sm:pt-0 pt-4 w-full px-4 sm:px-0 justify-end z-10">
         <button
           onClick={() => {
@@ -745,7 +745,7 @@ export default function App() {
         </button> */}
       </div>
       <svg className="h-[500px] md:pt-0 w-[350px] md:w-[900px]" id="pchart" />
-      <div className="md:flex grid grid-cols-2 w-4/5 justify-center gap-4 z-10">
+      <div className="md:flex grid grid-cols-2 w-4/5 justify-center gap-2 sm:gap-4 z-10">
         {sizeSortedChartData
           .filter((party) => !party.partyName.includes("IND"))
           .map((party) => {
