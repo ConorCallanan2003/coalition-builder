@@ -591,6 +591,7 @@ const colors = {
 };
 
 export default function App() {
+  const queryParameters = new URLSearchParams(window.location.search);
   const [chartData, setChartData] = useState<
     { seats: number; color: string; partyName: string }[]
   >([]);
@@ -599,7 +600,11 @@ export default function App() {
   >([]);
   const [numOfIndependents, setNumOfIndependents] = useState(0);
 
-  const [selectedParties, setSelectedParties] = useState<string[]>([]);
+  const [selectedParties, setSelectedParties] = useState<string[]>(
+    queryParameters.get("parties")?.split(",") ?? []
+  );
+
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     d3.select("svg#pchart").selectAll("g").remove();
@@ -616,6 +621,13 @@ export default function App() {
   }, [chartData]);
 
   useEffect(() => {
+    queryParameters.set("parties", selectedParties.join(","));
+    window.history.replaceState(
+      {},
+      "",
+      `${window.location.pathname}?${queryParameters}`
+    );
+
     const numOfInds = parseInt(
       data.ELECTION.SUMMARY.PARTY_GROUPS.GROUP.find(
         (x) => x.GROUP_NAME === "IND"
@@ -728,7 +740,13 @@ export default function App() {
 
   return (
     <div className="w-screen h-screen relative flex flex-col justify-center items-center md:pb-0 pb-[80px]">
-      <div className="flex sm:w-1/2 sm:pt-0 pt-4 w-full px-4 sm:px-0 justify-end z-10">
+      <div className="flex sm:w-1/2 sm:pt-0 pt-4 w-full px-4 sm:px-0 justify-between z-10">
+        <button
+          onClick={() => setShowModal(true)}
+          className="text-3xl font-bold"
+        >
+          SHARE
+        </button>
         <button
           onClick={() => {
             setChartData([]);
@@ -740,9 +758,9 @@ export default function App() {
         >
           RESET
         </button>
-        {/* <button onClick={() => saveSvgAsPng()} className="text-3xl font-bold">
-          SAVE
-        </button> */}
+        {/* <a target="_blank" href="https://bsky.app/intent/compose"> */}
+
+        {/* </a> */}
       </div>
       <svg className="h-[500px] md:pt-0 w-[350px] md:w-[900px]" id="pchart" />
       <div className="md:flex grid grid-cols-2 w-4/5 justify-center gap-2 sm:gap-4 z-10">
@@ -820,6 +838,58 @@ export default function App() {
           </p>
         </div>
       </div>
+      {showModal && (
+        <div
+          onClick={() => setShowModal(false)}
+          className="absolute bg-transparent w-full h-full z-30 backdrop-blur-sm top-0 bottom-0 right-0 left-0 flex justify-center items-center"
+        >
+          <div className="w-[300px] z-40 p-6 bg-white rounded-2xl shadow-2xl flex flex-col gap-2">
+            <h1 className="text-3xl font-bold pb-2">Share</h1>
+            <a
+              className="text-2xl font-bold"
+              target="_blank"
+              href={`https://bsky.app/intent/compose/?text=${encodeURIComponent("Interesting government coalition 🤔<br/><br/>#GE24<br/><br/>" + `https://coalitionbuilder.ie/?${queryParameters}`)}`}
+            >
+              <div className="flex cursor-pointer gap-2 justify-between items-center bg-white shadow-lg rounded-lg py-2 px-4 border-2">
+                Bluesky
+                <img className="w-[25px] h-[25px]" src="bluesky.png" />
+              </div>
+            </a>
+            <a
+              target="_blank"
+              href={`https://twitter.com/intent/tweet/?text=${encodeURIComponent("Interesting government coalition 🤔\n\n#GE24\n\n" + `https://coalitionbuilder.ie/?${queryParameters}`)}`}
+              className="text-2xl font-bold"
+            >
+              <div className="flex cursor-pointer gap-2 justify-between items-center bg-white shadow-lg rounded-lg py-2 px-4 border-2">
+                Twitter
+                <img className="w-[25px] h-[25px]" src="twitter.png" />
+              </div>
+            </a>
+            <div
+              onClick={() => {
+                navigator.clipboard.writeText(
+                  `https://coalitionbuilder.ie/?${queryParameters}`
+                );
+              }}
+              className="flex cursor-pointer gap-2 justify-between items-center bg-white shadow-lg rounded-lg py-2 px-4 border-2"
+            >
+              <a className="text-2xl font-bold">Copy URL</a>
+              <svg
+                version="1.1"
+                x="0px"
+                y="0px"
+                height={25}
+                width={25}
+                viewBox="0 0 115.77 122.88"
+              >
+                <g>
+                  <path d="M89.62,13.96v7.73h12.19h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02v0.02 v73.27v0.01h-0.02c-0.01,3.84-1.57,7.33-4.1,9.86c-2.51,2.5-5.98,4.06-9.82,4.07v0.02h-0.02h-61.7H40.1v-0.02 c-3.84-0.01-7.34-1.57-9.86-4.1c-2.5-2.51-4.06-5.98-4.07-9.82h-0.02v-0.02V92.51H13.96h-0.01v-0.02c-3.84-0.01-7.34-1.57-9.86-4.1 c-2.5-2.51-4.06-5.98-4.07-9.82H0v-0.02V13.96v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07V0h0.02h61.7 h0.01v0.02c3.85,0.01,7.34,1.57,9.86,4.1c2.5,2.51,4.06,5.98,4.07,9.82h0.02V13.96L89.62,13.96z M79.04,21.69v-7.73v-0.02h0.02 c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v64.59v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h12.19V35.65 v-0.01h0.02c0.01-3.85,1.58-7.34,4.1-9.86c2.51-2.5,5.98-4.06,9.82-4.07v-0.02h0.02H79.04L79.04,21.69z M105.18,108.92V35.65v-0.02 h0.02c0-0.91-0.39-1.75-1.01-2.37c-0.61-0.61-1.46-1-2.37-1v0.02h-0.01h-61.7h-0.02v-0.02c-0.91,0-1.75,0.39-2.37,1.01 c-0.61,0.61-1,1.46-1,2.37h0.02v0.01v73.27v0.02h-0.02c0,0.91,0.39,1.75,1.01,2.37c0.61,0.61,1.46,1,2.37,1v-0.02h0.01h61.7h0.02 v0.02c0.91,0,1.75-0.39,2.37-1.01c0.61-0.61,1-1.46,1-2.37h-0.02V108.92L105.18,108.92z" />
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
