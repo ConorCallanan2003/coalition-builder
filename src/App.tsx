@@ -833,7 +833,7 @@ export default function App() {
               target="_blank"
               href={
                 /Mobi/i.test(window.navigator.userAgent)
-                  ? `bluesky://intent/compose/?text=${encodeURIComponent("Interesting government coalition 🤔<br/><br/>#GE24 #GE24CoalitionBuilder<br/><br/>" + `https://coalitionbuilder.ie/?${queryParameters}`)}`
+                  ? `bluesky://intent/compose/?text=${encodeURIComponent("Interesting government coalition 🤔\n\n#GE24 #GE24CoalitionBuilder\n\n" + `https://coalitionbuilder.ie/?${queryParameters}`)}`
                   : `https://bsky.app/intent/compose/?text=${encodeURIComponent("Interesting government coalition 🤔<br/><br/>#GE24 #GE24CoalitionBuilder<br/><br/>" + `https://coalitionbuilder.ie/?${queryParameters}`)}`
               }
             >
