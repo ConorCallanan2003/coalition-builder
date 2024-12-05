@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 import parliamentChart from "./parliament-chart";
-import { saveSvgAsPng } from "save-svg-as-png";
 
 const data = {
   ELECTION: {
@@ -235,7 +234,31 @@ const data = {
             FIRST_PREFERENCE_VOTES: "290,748",
             SHARE_OF_THE_VOTE: "13.2",
             SHOW_ON_GRAPHIC: "Y",
-            SEATS_WON: "16",
+            SEATS_WON: "8",
+            COMPARISON_1: {
+              COMPARISON_WITH: "2020",
+              FIRST_PREFERENCE_VOTES: "266,353",
+              SHARE_OF_THE_VOTE: "12.2",
+              SHOW_ON_GRAPHIC: "Y",
+              CHANGE: "+1.0",
+              SEATS_WON: "0",
+            },
+            COMPARISON_2: {
+              COMPARISON_WITH: null,
+              FIRST_PREFERENCE_VOTES: null,
+              SHARE_OF_THE_VOTE: null,
+              SHOW_ON_GRAPHIC: "N",
+              CHANGE: null,
+              SEATS_WON: "0",
+            },
+          },
+          {
+            "@ID": "G22",
+            GROUP_NAME: "RGI",
+            FIRST_PREFERENCE_VOTES: "290,748",
+            SHARE_OF_THE_VOTE: "13.2",
+            SHOW_ON_GRAPHIC: "Y",
+            SEATS_WON: "8",
             COMPARISON_1: {
               COMPARISON_WITH: "2020",
               FIRST_PREFERENCE_VOTES: "266,353",
@@ -255,7 +278,7 @@ const data = {
           },
           {
             "@ID": "G23",
-            GROUP_NAME: "OTH",
+            GROUP_NAME: "100%RDR",
             FIRST_PREFERENCE_VOTES: "51,243",
             SHARE_OF_THE_VOTE: "2.3",
             SHOW_ON_GRAPHIC: "Y",
@@ -587,7 +610,8 @@ const colors = {
   IND: "rgb(251, 178, 23)",
   Renua: "#03a9f4",
   II: "rgb(188, 57, 184)",
-  OTH: "rgb(107, 107, 107)",
+  "100%RDR": "rgb(202, 58, 93)",
+  RGI: "rgb(223, 119, 21)",
 };
 
 export default function App() {
@@ -603,7 +627,6 @@ export default function App() {
   const [selectedParties, setSelectedParties] = useState<string[]>(
     queryParameters.get("parties")?.split(",") ?? []
   );
-
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -679,64 +702,27 @@ export default function App() {
     const unsortedUnselectedParties = unsortedFormattedData.filter(
       (party) => !selectedParties.includes(party.partyName)
     );
-    unsortedSelectedParties.sort((a, b) => b.seats - a.seats);
-    unsortedUnselectedParties.sort((a, b) => b.seats - a.seats);
+    unsortedSelectedParties.sort((a, b) =>
+      a.partyName == "RGI" ? 1 : b.seats - a.seats
+    );
+    unsortedUnselectedParties.sort((a, b) =>
+      a.partyName == "RGI" ? 1 : b.seats - a.seats
+    );
     const formattedData = unsortedSelectedParties.concat(
       unsortedUnselectedParties
     );
     setChartData(formattedData);
     const formattedDataCopy = JSON.parse(JSON.stringify(formattedData));
     formattedDataCopy.sort((a, b) => {
-      if (b.seats == a.seats) {
+      if (b.seats === a.seats) {
         return a.partyName.localeCompare(b.partyName);
       }
+      if (a.partyName == "RGI") return 1;
+      if (b.partyName == "RGI") return -1;
       return b.seats - a.seats;
     });
     setSizeSortedChartData(formattedDataCopy);
   }, [selectedParties]);
-
-  function saveSvgAsPng() {
-    const svgElement = document.getElementById("pchart");
-
-    // Create a new XMLSerializer object to serialize the SVG element.
-    const serializer = new XMLSerializer();
-
-    // Serialize the SVG element to a string.
-    const svgString = serializer.serializeToString(svgElement!);
-
-    // Create a new blob with the SVG string.
-    const svgBlob = new Blob([svgString], {
-      type: "image/svg+xml;charset=utf-8",
-    });
-
-    // Create a new canvas element to draw the SVG on.
-    const canvas = document.createElement("canvas");
-    // Set the canvas dimensions to match the SVG dimensions.
-    //@ts-ignore
-    canvas.width = svgElement.width.baseVal.value;
-    //@ts-ignore
-    canvas.height = svgElement.height.baseVal.value;
-
-    // Draw the SVG on the canvas.
-    const ctx = canvas.getContext("2d");
-    const img = new Image();
-    img.onload = function () {
-      ctx!.drawImage(img, 0, 0);
-      // Convert the canvas to a PNG blob.
-      canvas.toBlob(
-        (pngBlob) => {
-          // Create a new link to download the PNG.
-          const link = document.createElement("a");
-          link.href = URL.createObjectURL(pngBlob!);
-          link.download = "coalitionbuilder.png";
-          link.click();
-        },
-        "image/png",
-        1 // compression quality (0-1)
-      );
-    };
-    img.src = URL.createObjectURL(svgBlob);
-  }
 
   return (
     <div className="w-screen h-screen relative flex flex-col justify-center items-center md:pb-0 pb-[80px]">
@@ -758,9 +744,6 @@ export default function App() {
         >
           RESET
         </button>
-        {/* <a target="_blank" href="https://bsky.app/intent/compose"> */}
-
-        {/* </a> */}
       </div>
       <svg className="h-[500px] md:pt-0 w-[350px] md:w-[900px]" id="pchart" />
       <div className="md:flex grid grid-cols-2 w-4/5 justify-center gap-2 sm:gap-4 z-10">
@@ -848,7 +831,11 @@ export default function App() {
             <a
               className="text-2xl font-bold"
               target="_blank"
-              href={`https://bsky.app/intent/compose/?text=${encodeURIComponent("Interesting government coalition 🤔<br/><br/>#GE24<br/><br/>" + `https://coalitionbuilder.ie/?${queryParameters}`)}`}
+              href={
+                /Mobi/i.test(window.navigator.userAgent)
+                  ? `bluesky://intent/compose/?text=${encodeURIComponent("Interesting government coalition 🤔<br/><br/>#GE24 #GE24CoalitionBuilder<br/><br/>" + `https://coalitionbuilder.ie/?${queryParameters}`)}`
+                  : `https://bsky.app/intent/compose/?text=${encodeURIComponent("Interesting government coalition 🤔<br/><br/>#GE24 #GE24CoalitionBuilder<br/><br/>" + `https://coalitionbuilder.ie/?${queryParameters}`)}`
+              }
             >
               <div className="flex cursor-pointer gap-2 justify-between items-center bg-white shadow-lg rounded-lg py-2 px-4 border-2">
                 Bluesky
@@ -857,7 +844,7 @@ export default function App() {
             </a>
             <a
               target="_blank"
-              href={`https://twitter.com/intent/tweet/?text=${encodeURIComponent("Interesting government coalition 🤔\n\n#GE24\n\n" + `https://coalitionbuilder.ie/?${queryParameters}`)}`}
+              href={`https://twitter.com/intent/tweet/?text=${encodeURIComponent("Interesting government coalition 🤔\n#GE24 #GE24CoalitionBuilder\n\n")}&url=https://coalitionbuilder.ie/?${queryParameters}`}
               className="text-2xl font-bold"
             >
               <div className="flex cursor-pointer gap-2 justify-between items-center bg-white shadow-lg rounded-lg py-2 px-4 border-2">
